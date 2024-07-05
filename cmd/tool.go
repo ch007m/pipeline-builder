@@ -25,6 +25,11 @@ var rootCmd = &cobra.Command{
 		// Print the arguments
 		fmt.Printf("Configurator: %s\n", configurator)
 		fmt.Printf("Output: %s\n", output)
+
+		// Continue to process
+		if err := tool.Contribute(configurator, output); err != nil {
+			log.Fatal(fmt.Errorf("Unable to generate pipelines ...\n%w", err))
+		}
 	},
 }
 
@@ -37,9 +42,5 @@ func main() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
-	}
-
-	if err := tool.Contribute(configurator, output); err != nil {
-		log.Fatal(fmt.Errorf("Unable to generate pipelines ...\n%w", err))
 	}
 }
