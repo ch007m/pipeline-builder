@@ -9,7 +9,7 @@ import (
 func Contribute(path string, output string) error {
 	configurator, err := NewConfigurator(path)
 	if err != nil {
-		return fmt.Errorf("unable to read descriptor %s\n%w", path, err)
+		return fmt.Errorf("Unable to read/parse the config yaml file %s\n%w", path, err)
 	}
 
 	fmt.Println("Configurator path: %s\n", configurator)

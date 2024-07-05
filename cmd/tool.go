@@ -3,29 +3,43 @@ package main
 import (
 	"fmt"
 	tool "github.com/ch007m/pipeline-builder"
-	"github.com/spf13/pflag"
+	"github.com/spf13/cobra"
 	"log"
 	"os"
 )
 
+var configurator string
+var output string
+
+var rootCmd = &cobra.Command{
+	Use:   "pipeline-builder",
+	Short: "A tekton pipeline builder",
+	Long:  `A tekton pipeline builder able to create from templates and a configurator files pipelines ans tasks.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		// Check if required flags are provided
+		if configurator == "" || output == "" {
+			cmd.Usage()
+			os.Exit(1)
+		}
+
+		// Print the arguments
+		fmt.Printf("Configurator: %s\n", configurator)
+		fmt.Printf("Output: %s\n", output)
+	},
+}
+
+func init() {
+	rootCmd.Flags().StringVarP(&configurator, "configurator", "c", "", "path of the configurator file")
+	rootCmd.Flags().StringVarP(&output, "output", "o", "", "Output where pipelines should be saved")
+}
+
 func main() {
-	flagSet := pflag.NewFlagSet("octo", pflag.ExitOnError)
-	configurator := flagSet.String("configurator", "", "path to input configurator")
-	output := flagSet.String("output", "", "path to output directory")
-
-	if err := flagSet.Parse(os.Args[1:]); err != nil {
-		log.Fatal(fmt.Errorf("unable to parse flags\n%w", err))
+	if err := rootCmd.Execute(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
-	if configurator == nil {
-		log.Fatal("--configurator is required")
-	}
-
-	if output == nil {
-		log.Fatal("--output is required")
-	}
-
-	if err := tool.Contribute(*configurator, *output); err != nil {
-		log.Fatal(fmt.Errorf("unable to build\n%w", err))
+	if err := tool.Contribute(configurator, output); err != nil {
+		log.Fatal(fmt.Errorf("Unable to generate pipelines ...\n%w", err))
 	}
 }
