@@ -10,7 +10,7 @@ const OUTPUT_DIR = "out/flows"
 
 func main() {
 	task := task.Task{
-		APIVersion: "task.dev/v1beta1",
+		APIVersion: "task.dev/" + task.TEKTON_API_VERSION,
 		Kind:       "Task",
 		Metadata: task.Metadata{
 			Name: "buildpacks-extension-check",

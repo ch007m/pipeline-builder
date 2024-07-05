@@ -7,3 +7,5 @@ type Task struct {
 	Metadata   Metadata `yaml:"metadata"`
 	Spec       TaskSpec `yaml:"spec"`
 }
+
+const TEKTON_API_VERSION = "v1beta1"
