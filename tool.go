@@ -2,6 +2,7 @@ package tool
 
 import (
 	"fmt"
+	"github.com/ch007m/pipeline-builder/logging"
 	"github.com/ch007m/pipeline-builder/task"
 	"gopkg.in/yaml.v3"
 )
@@ -9,10 +10,10 @@ import (
 func Contribute(path string, output string) error {
 	configurator, err := NewConfigurator(path)
 	if err != nil {
-		return fmt.Errorf("Unable to read/parse the config yaml file %s\n%w", path, err)
+		return fmt.Errorf("Unable to read/parse the config yaml file %s, %w", path, err)
 	}
 
-	fmt.Println("Configurator path: %s\n", configurator)
+	logging.Logger.Info("Configurator path: %s", configurator)
 
 	task := task.Task{
 		APIVersion: "task.dev/" + task.TEKTON_API_VERSION,
