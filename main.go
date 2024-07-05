@@ -6,7 +6,7 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const OUTPUT_DIR = "build/flows"
+const OUTPUT_DIR = "out/flows"
 
 func main() {
 	task := task.Task{
@@ -20,7 +20,7 @@ func main() {
 			Annotations: map[string]string{
 				"task.dev/pipelines.minVersion": "0.40.0",
 				"task.dev/categories":           "Image Build",
-				"task.dev/tags":                 "image-build",
+				"task.dev/tags":                 "image-out",
 				"task.dev/displayName":          "Buildpacks extensions check",
 				"task.dev/platforms":            "linux/amd64",
 			},
@@ -29,7 +29,7 @@ func main() {
 			Description: `This Task will inspect a Buildpacks builder image using the skopeo tool
 to find if the image includes the labels: io.buildpacks.extension.layers and io.buildpacks.buildpack.order-extensions.
 If this is the case, then, you can use the "results.extensionLabels" within your PipelineRun or TaskRun to
-trigger the build using either the buildpacks extension Task or the buildpacks task.
+trigger the out using either the buildpacks extension Task or the buildpacks task.
 Additionally, the CNB USER ID and CNB GROUP ID of the image will be exported as results.`,
 			Params: []task.Param{
 				{
@@ -73,7 +73,7 @@ Additionally, the CNB USER ID and CNB GROUP ID of the image will be exported as 
 						{Name: "PARAM_VERBOSE", Value: "$(params.verbose)"},
 						{Name: "PARAM_BUILDER_IMAGE", Value: "$(params.builderImage)"},
 					},
-					Script: `#!/usr/build/env bash
+					Script: `#!/usr/out/env bash
 set -eu
 
 if [ "${PARAM_VERBOSE}" = "true" ] ; then
