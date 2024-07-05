@@ -6,6 +6,8 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const OUTPUT_DIR = "build/flows"
+
 func main() {
 	task := task.Task{
 		APIVersion: "task.dev/v1beta1",
@@ -71,7 +73,7 @@ Additionally, the CNB USER ID and CNB GROUP ID of the image will be exported as 
 						{Name: "PARAM_VERBOSE", Value: "$(params.verbose)"},
 						{Name: "PARAM_BUILDER_IMAGE", Value: "$(params.builderImage)"},
 					},
-					Script: `#!/usr/bin/env bash
+					Script: `#!/usr/build/env bash
 set -eu
 
 if [ "${PARAM_VERBOSE}" = "true" ] ; then
@@ -92,6 +94,9 @@ IMG_MANIFEST=$(skopeo inspect --authfile ${PARAM_USER_HOME}/creds-secrets/docker
 		fmt.Printf("error: %v\n", err)
 	}
 
-	// fmt.Printf("---\n%s\n", string(data))
-	WriteFlow(data, &task)
+	err = WriteFlow(data, &task)
+	if err != nil {
+		fmt.Printf("error: %v\n", err)
+	}
+
 }

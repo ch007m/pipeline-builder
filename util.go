@@ -14,11 +14,10 @@ func WriteFlow(content []byte, task *task.Task) error {
 
 	path, err := os.Getwd()
 	if err != nil {
-		// Handle the error
 		fmt.Println("Error:", err)
 		return fmt.Errorf("Unable to get the current path !")
 	}
-	file := filepath.Join(path+"tmp/flows", task.Metadata.Name)
+	file := filepath.Join(path, OUTPUT_DIR, task.Metadata.Name+".yaml")
 
 	if err := os.MkdirAll(filepath.Dir(file), 0755); err != nil {
 		return fmt.Errorf("unable to create %s\n%w", filepath.Dir(file), err)
