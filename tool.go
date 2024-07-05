@@ -1,4 +1,4 @@
-package main
+package tool
 
 import (
 	"fmt"
@@ -6,9 +6,14 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-const OUTPUT_DIR = "out/flows"
+func Contribute(path string, output string) error {
+	configurator, err := NewConfigurator(path)
+	if err != nil {
+		return fmt.Errorf("unable to read descriptor %s\n%w", path, err)
+	}
 
-func main() {
+	fmt.Println("Configurator path: %s\n", configurator)
+
 	task := task.Task{
 		APIVersion: "task.dev/" + task.TEKTON_API_VERSION,
 		Kind:       "Task",
@@ -94,9 +99,5 @@ IMG_MANIFEST=$(skopeo inspect --authfile ${PARAM_USER_HOME}/creds-secrets/docker
 		fmt.Printf("error: %v\n", err)
 	}
 
-	err = WriteFlow(data, &task)
-	if err != nil {
-		fmt.Printf("error: %v\n", err)
-	}
-
+	return WriteFlow(data, &task, output)
 }

@@ -1,4 +1,4 @@
-package main
+package tool
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 )
 
-func WriteFlow(content []byte, task *task.Task) error {
+func WriteFlow(content []byte, task *task.Task, output_dir string) error {
 	t := gotree.New("pipeline")
 	t.Add(string(content))
 
@@ -17,7 +17,7 @@ func WriteFlow(content []byte, task *task.Task) error {
 		fmt.Println("Error:", err)
 		return fmt.Errorf("Unable to get the current path !")
 	}
-	file := filepath.Join(path, OUTPUT_DIR, task.Metadata.Name+".yaml")
+	file := filepath.Join(path, output_dir, task.Metadata.Name+".yaml")
 
 	if err := os.MkdirAll(filepath.Dir(file), 0755); err != nil {
 		return fmt.Errorf("unable to create %s\n%w", filepath.Dir(file), err)
