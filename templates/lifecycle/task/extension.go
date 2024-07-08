@@ -1,9 +1,13 @@
-package generator
+package lifecycle
 
 import (
 	"github.com/ch007m/pipeline-builder/model/common"
 	"github.com/ch007m/pipeline-builder/model/task"
+	_ "github.com/ch007m/pipeline-builder/templates/lifecycle/task/statik"
+	"github.com/ch007m/pipeline-builder/util"
 )
+
+//go:generate statik -src . -include *.sh
 
 func CreateExtensionTask() task.Task {
 	task := task.Task{
@@ -70,17 +74,7 @@ Additionally, the CNB USER ID and CNB GROUP ID of the image will be exported as 
 						{Name: "PARAM_VERBOSE", Value: "$(params.verbose)"},
 						{Name: "PARAM_BUILDER_IMAGE", Value: "$(params.builderImage)"},
 					},
-					Script: `#!/usr/out/env bash
-set -eu
-
-if [ "${PARAM_VERBOSE}" = "true" ] ; then
-  set -x
-fi
-
-EXT_LABEL_1="io.buildpack.extension.layers"
-EXT_LABEL_2="io.buildpack.templates.order-extensions"
-
-IMG_MANIFEST=$(skopeo inspect --authfile ${PARAM_USER_HOME}/creds-secrets/dockercfg/.dockerconfigjson "docker://${PARAM_BUILDER_IMAGE}")`,
+					Script: util.StatikString("/extension.sh"),
 				},
 			},
 		},

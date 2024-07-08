@@ -3,7 +3,8 @@ package generator
 import (
 	"fmt"
 	"github.com/ch007m/pipeline-builder/logging"
-	generator "github.com/ch007m/pipeline-builder/templates/lifecycle"
+	"github.com/ch007m/pipeline-builder/templates/lifecycle"
+	"github.com/ch007m/pipeline-builder/util"
 
 	"gopkg.in/yaml.v3"
 )
@@ -16,11 +17,11 @@ func Contribute(path string, output string) error {
 
 	logging.Logger.Debug("Configurator path: %s", configurator)
 
-	pipeline := generator.CreatePipeline()
+	pipeline := lifecycle.CreatePipeline()
 	data, err := yaml.Marshal(&pipeline)
 	if err != nil {
 		return fmt.Errorf("Yaml marshalling error: %v\n", err)
 	}
 
-	return WriteFlow(data, &pipeline, output)
+	return util.WriteFlow(data, &pipeline, output)
 }

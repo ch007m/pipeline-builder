@@ -1,11 +1,15 @@
-package generator
+package util
 
 import (
 	"fmt"
 	"github.com/ch007m/pipeline-builder/model/pipeline"
 	"github.com/disiqueira/gotree"
+	"io"
+	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/rakyll/statik/fs"
 )
 
 func WriteFlow(content []byte, pipeline *pipeline.Pipeline, output_dir string) error {
@@ -29,4 +33,23 @@ func WriteFlow(content []byte, pipeline *pipeline.Pipeline, output_dir string) e
 
 	fmt.Println(t.Print())
 	return nil
+}
+
+func StatikString(path string) string {
+	statik, err := fs.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+	r, err := statik.Open(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer r.Close()
+
+	b, err := io.ReadAll(r)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return string(b)
 }

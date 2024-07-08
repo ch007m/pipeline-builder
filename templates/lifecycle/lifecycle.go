@@ -1,9 +1,10 @@
-package generator
+package lifecycle
 
 import (
 	"github.com/ch007m/pipeline-builder/model/common"
 	"github.com/ch007m/pipeline-builder/model/pipeline"
 	"github.com/ch007m/pipeline-builder/model/task"
+	lifecycle "github.com/ch007m/pipeline-builder/templates/lifecycle/task"
 )
 
 func CreatePipeline() pipeline.Pipeline {
@@ -94,7 +95,7 @@ func CreatePipeline() pipeline.Pipeline {
 				},
 			},
 			Tasks: []task.Task{
-				CreateExtensionTask(),
+				lifecycle.CreateExtensionTask(),
 			},
 		},
 	}
