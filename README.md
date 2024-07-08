@@ -1,6 +1,6 @@
 ## Pipeline builder POC
 
-To build the executable
+To generate the statik FS and build the executable, execute this command:
 ```bash
 make
 ```
