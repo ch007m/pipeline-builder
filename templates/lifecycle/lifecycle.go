@@ -95,7 +95,7 @@ func CreatePipeline() pipeline.Pipeline {
 				},
 			},
 			Tasks: []task.Task{
-				lifecycle.CreateExtensionTask(),
+				lifecycle.CreateCheckExtensionTask(),
 			},
 		},
 	}
