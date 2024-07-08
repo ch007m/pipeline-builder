@@ -56,7 +56,7 @@ func CreatePipeline() pipeline.Pipeline {
 				{
 					Name: "show-sbom",
 					When: []pipeline.When{
-						{Input: "$(params.enable-sbom)", Operator: "in", Values: []string{"true"}},
+						{Input: "$(params.enable-sbom)", Operator: pipeline.In, Values: []string{"true"}},
 					},
 					Params: []pipeline.Param{
 						{Name: "GRYPE_IMAGE", Value: "anchore/grype:v0.65.1"},
@@ -80,7 +80,7 @@ func CreatePipeline() pipeline.Pipeline {
 				{
 					Name: "show-summary",
 					When: []pipeline.When{
-						{Input: "$(params.enable-sbom)", Operator: "in", Values: []string{"true"}},
+						{Input: "$(params.enable-sbom)", Operator: pipeline.In, Values: []string{"true"}},
 					},
 					Params: []pipeline.Param{
 						{Name: "pipelinerun-name", Value: "$(context.pipelineRun.name)"},
@@ -151,23 +151,12 @@ func CreatePipeline() pipeline.Pipeline {
 						},
 					},
 				},
-				//      taskRef:
-				//        resolver: git
-				//        params:
-				//          - name: url
-				//            value: https://github.com/redhat-buildpacks/catalog.git
-				//          - name: revision
-				//            value: main
-				//          - name: pathInRepo
-				//            value: tekton/task/buildpacks-phases/01/buildpacks-phases.yaml
-				//      workspaces:
-				//        - name: source
-				//          workspace: workspace
 				{
-					Name:     "build-container",
+					Name:     "buildpacks-extension",
 					RunAfter: []string{"clone-repository"},
 					When: []pipeline.When{
-						{Input: "$(tasks.init.results.build)", Operator: "in", Values: []string{"true"}},
+						{Input: "$(tasks.init.results.build)", Operator: pipeline.In, Values: []string{"true"}},
+						{Input: "$(tasks.buildpacks-extension-check.results.extensionLabels)", Operator: pipeline.NotIn, Values: []string{"empty"}},
 					},
 					Params: []pipeline.Param{
 						{Name: "IMAGE", Value: "$(params.output-image)"},
@@ -195,8 +184,50 @@ func CreatePipeline() pipeline.Pipeline {
 						Params: []pipeline.Param{
 							{Name: "url", Value: "https://github.com/redhat-buildpacks/catalog.git"},
 							{Name: "revision", Value: "main"},
-							{Name: "pathInRepo", Value: "tekton/task/buildpacks-extension-check/01/buildpacks-extension-check.yaml"},
+							{Name: "pathInRepo", Value: "tekton/task/buildpacks-extension-phases/01/buildpacks-extension-phases.yaml"},
 						},
+					},
+					Workspaces: []pipeline.WorkspaceBinding{
+						{Name: "source", Workspace: "workspace"},
+					},
+				},
+				{
+					Name:     "build-container",
+					RunAfter: []string{"clone-repository"},
+					When: []pipeline.When{
+						{Input: "$(tasks.init.results.build)", Operator: pipeline.In, Values: []string{"true"}},
+					},
+					Params: []pipeline.Param{
+						{Name: "IMAGE", Value: "$(params.output-image)"},
+						{Name: "DOCKERFILE", Value: "$(params.dockerfile)"},
+						{Name: "CONTEXT", Value: "$(params.path-context)"},
+						{Name: "HERMETIC", Value: "$(params.hemetic)"},
+						{Name: "PREFETCH_INPUT", Value: "$(params.prefetch-input)"},
+						{Name: "IMAGE_EXPIRES_AFTER", Value: "$(params.image-expires-after)"},
+						{Name: "COMMIT_SHA", Value: "$(tasks.clone-repository.results.commit)"},
+						// Buildpacks parameters
+						{Name: "APP_IMAGE", Value: "$(params.output-image)"},
+						{Name: "SOURCE_SUBPATH", Value: "$(params.sourceSubPath)"},
+						{Name: "CNB_BUILDER_IMAGE", Value: "$(params.cnbBuilderImage)"},
+						{Name: "CNB_LIFECYCLE_IMAGE", Value: "$(params.cnbLifecycleImage)"},
+						{Name: "CNB_EXPERIMENTAL_MODE", Value: "$(params.cnbExperimentalMode)"},
+						{Name: "CNB_LOG_LEVEL", Value: "value: $(params.cnbLogLevel)"},
+						{Name: "CNB_RUN_IMAGE", Value: "$(params.cnbRunImage) #${CNB_RUN_IMAGE}"},
+						{Name: "CNB_BUILD_IMAGE", Value: "$(params.cnbBuildImage)"},
+						{Name: "CNB_USER_ID", Value: "$(tasks.buildpacks-extension-check.results.uid)"},
+						{Name: "CNB_GROUP_ID", Value: "$(tasks.buildpacks-extension-check.results.gid)"},
+						{Name: "CNB_ENV_VARS", Value: []string{"$(params.cnbBuildEnvVars)"}},
+					},
+					TaskRef: pipeline.TaskRef{
+						Resolver: "git",
+						Params: []pipeline.Param{
+							{Name: "url", Value: "https://github.com/redhat-buildpacks/catalog.git"},
+							{Name: "revision", Value: "main"},
+							{Name: "pathInRepo", Value: "tekton/task/buildpacks-phases/01/buildpacks-phases.yaml"},
+						},
+					},
+					Workspaces: []pipeline.WorkspaceBinding{
+						{Name: "source", Workspace: "workspace"},
 					},
 				},
 			},
