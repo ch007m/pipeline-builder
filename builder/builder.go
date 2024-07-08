@@ -1,4 +1,4 @@
-package tool
+package builder
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ func Contribute(path string, output string) error {
 		return fmt.Errorf("Unable to read/parse the config yaml file %s, %w", path, err)
 	}
 
-	logging.Logger.Info("Configurator path: %s", configurator)
+	logging.Logger.Debug("Configurator path: %s", configurator)
 
 	task := task.Task{
 		APIVersion: "task.dev/" + task.TEKTON_API_VERSION,
@@ -97,7 +97,7 @@ IMG_MANIFEST=$(skopeo inspect --authfile ${PARAM_USER_HOME}/creds-secrets/docker
 
 	data, err := yaml.Marshal(&task)
 	if err != nil {
-		fmt.Printf("error: %v\n", err)
+		return fmt.Errorf("Yaml marshalling error: %v\n", err)
 	}
 
 	return WriteFlow(data, &task, output)

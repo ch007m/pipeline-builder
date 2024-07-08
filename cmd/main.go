@@ -1,7 +1,7 @@
 package main
 
 import (
-	tool "github.com/ch007m/pipeline-builder"
+	tool "github.com/ch007m/pipeline-builder/builder"
 	"github.com/ch007m/pipeline-builder/logging"
 	"github.com/spf13/cobra"
 	"os"
