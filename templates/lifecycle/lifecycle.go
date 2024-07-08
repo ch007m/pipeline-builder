@@ -3,16 +3,14 @@ package lifecycle
 import (
 	"github.com/ch007m/pipeline-builder/model/common"
 	"github.com/ch007m/pipeline-builder/model/pipeline"
-	"github.com/ch007m/pipeline-builder/model/task"
-	lifecycle "github.com/ch007m/pipeline-builder/templates/lifecycle/task"
 )
 
 func CreatePipeline() pipeline.Pipeline {
 	pipeline := pipeline.Pipeline{
-		APIVersion: "tekton.dev/v1",
+		APIVersion: "tekton.dev" + common.TEKTON_API_VERSION,
 		Kind:       "Pipeline",
 		Metadata: common.Metadata{
-			Name: "pipeline-rhtap",
+			Name: "pipeline-konflux",
 		},
 		Spec: pipeline.Spec{
 			Workspaces: []pipeline.Workspace{
@@ -61,9 +59,9 @@ func CreatePipeline() pipeline.Pipeline {
 						{Name: "GRYPE_IMAGE", Type: "string", Default: "anchore/grype:v0.65.1"},
 						{Name: "ARGS", Type: "string", Default: "$(tasks.build-container.results.IMAGE_URL), -o $(params.grype-sbom-format)"},
 					},
-					TaskRef: task.TaskRef{
+					TaskRef: pipeline.TaskRef{
 						Resolver: "git",
-						Params: []task.Param{
+						Params: []pipeline.Param{
 							{Name: "url", Type: "string", Default: "https://github.com/tektoncd/catalog.git"},
 							{Name: "revision", Type: "string", Default: "main"},
 							{Name: "pathInRepo", Type: "string", Default: "task/grype/0.1/grype.yaml"},
@@ -84,9 +82,9 @@ func CreatePipeline() pipeline.Pipeline {
 						{Name: "image-url", Type: "string", Default: "$(params.output-image)"},
 						{Name: "build-task-status", Type: "string", Default: "$(tasks.build-container.status)"},
 					},
-					TaskRef: task.TaskRef{
+					TaskRef: pipeline.TaskRef{
 						Resolver: "bundles",
-						Params: []task.Param{
+						Params: []pipeline.Param{
 							{Name: "bundle", Type: "string", Default: "quay.io/redhat-appstudio-tekton-catalog/task-summary:0.1@sha256:e69f53a3991d7088d8aa2827365ab761ab7524d4269f296b4a78b0f085789d30"},
 							{Name: "name", Type: "string", Default: "summary"},
 							{Name: "kind", Type: "string", Default: "Task"},
@@ -94,8 +92,11 @@ func CreatePipeline() pipeline.Pipeline {
 					},
 				},
 			},
-			Tasks: []task.Task{
-				lifecycle.CreateCheckExtensionTask(),
+			Tasks: []pipeline.Task{
+				// TODO : Add Tasks
+				{
+					Name: "",
+				},
 			},
 		},
 	}

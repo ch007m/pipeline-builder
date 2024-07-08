@@ -1,4 +1,4 @@
-package task
+package pipeline
 
 type TaskRef struct {
 	Resolver string  `yaml:"resolver"`
