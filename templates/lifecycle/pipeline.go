@@ -8,7 +8,7 @@ import (
 
 func CreatePipeline() pipeline.Pipeline {
 	pipeline := pipeline.Pipeline{
-		APIVersion: "tekton.dev/v1beta1",
+		APIVersion: "tekton.dev/v1",
 		Kind:       "Pipeline",
 		Metadata: common.Metadata{
 			Name: "pipeline-rhtap",

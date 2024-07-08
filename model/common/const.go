@@ -1,3 +1,3 @@
 package common
 
-const TEKTON_API_VERSION = "v1beta1"
+const TEKTON_API_VERSION = "v1"
