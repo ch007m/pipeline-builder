@@ -2,13 +2,13 @@ package generator
 
 import (
 	"fmt"
-	"github.com/ch007m/pipeline-builder/model/task"
+	"github.com/ch007m/pipeline-builder/model/pipeline"
 	"github.com/disiqueira/gotree"
 	"os"
 	"path/filepath"
 )
 
-func WriteFlow(content []byte, task *task.Task, output_dir string) error {
+func WriteFlow(content []byte, pipeline *pipeline.Pipeline, output_dir string) error {
 	t := gotree.New("pipeline")
 	t.Add(string(content))
 
@@ -17,7 +17,7 @@ func WriteFlow(content []byte, task *task.Task, output_dir string) error {
 		fmt.Println("Error:", err)
 		return fmt.Errorf("Unable to get the current path !")
 	}
-	file := filepath.Join(path, output_dir, task.Metadata.Name+".yaml")
+	file := filepath.Join(path, output_dir, pipeline.Metadata.Name+".yaml")
 
 	if err := os.MkdirAll(filepath.Dir(file), 0755); err != nil {
 		return fmt.Errorf("unable to create %s\n%w", filepath.Dir(file), err)
