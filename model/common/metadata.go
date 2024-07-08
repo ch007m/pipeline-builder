@@ -1,4 +1,4 @@
-package task
+package common
 
 // Metadata contains metadata for a Task
 type Metadata struct {

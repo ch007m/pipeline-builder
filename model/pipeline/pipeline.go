@@ -1,11 +1,11 @@
-package task
+package pipeline
 
 import "github.com/ch007m/pipeline-builder/model/common"
 
-// Task represents a Tekton Task
+// Pipeline represents a Tekton Pipeline
 type Task struct {
 	APIVersion string          `yaml:"apiVersion"`
 	Kind       string          `yaml:"kind"`
 	Metadata   common.Metadata `yaml:"metadata"`
-	Spec       TaskSpec        `yaml:"spec"`
+	Spec       PipelineSpec    `yaml:"spec"`
 }

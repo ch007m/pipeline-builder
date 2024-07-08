@@ -3,6 +3,7 @@ package generator
 import (
 	"fmt"
 	"github.com/ch007m/pipeline-builder/logging"
+	"github.com/ch007m/pipeline-builder/model/common"
 	"github.com/ch007m/pipeline-builder/model/task"
 	"gopkg.in/yaml.v3"
 )
@@ -16,9 +17,9 @@ func Contribute(path string, output string) error {
 	logging.Logger.Debug("Configurator path: %s", configurator)
 
 	task := task.Task{
-		APIVersion: "task.dev/" + task.TEKTON_API_VERSION,
+		APIVersion: "task.dev/" + common.TEKTON_API_VERSION,
 		Kind:       "Task",
-		Metadata: task.Metadata{
+		Metadata: common.Metadata{
 			Name: "buildpacks-extension-check",
 			Labels: map[string]string{
 				"app.kubernetes.io/version": "0.1",
