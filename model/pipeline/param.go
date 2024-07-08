@@ -1,8 +1,9 @@
 package pipeline
 
 type Param struct {
-	Default     string `yaml:"default,omitempty"`
-	Description string `yaml:"description"`
-	Name        string `yaml:"name"`
-	Type        string `yaml:"type"`
+	Default     interface{} `yaml:"default,omitempty"`
+	Description string      `yaml:"description,omitempty"`
+	Name        string      `yaml:"name"`
+	Type        string      `yaml:"type,omitempty"`
+	Value       interface{} `yaml:"value,omitempty"`
 }
