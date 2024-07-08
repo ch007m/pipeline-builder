@@ -1,8 +1,8 @@
-package builder
+package generator
 
 import (
 	"fmt"
-	"github.com/ch007m/pipeline-builder/task"
+	"github.com/ch007m/pipeline-builder/model/task"
 	"github.com/disiqueira/gotree"
 	"os"
 	"path/filepath"

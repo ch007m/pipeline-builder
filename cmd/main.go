@@ -1,7 +1,7 @@
 package main
 
 import (
-	tool "github.com/ch007m/pipeline-builder/builder"
+	tool "github.com/ch007m/pipeline-builder/generator"
 	"github.com/ch007m/pipeline-builder/logging"
 	"github.com/spf13/cobra"
 	"os"
@@ -11,9 +11,9 @@ var configurator string
 var output string
 
 var rootCmd = &cobra.Command{
-	Use:   "pipeline-builder",
-	Short: "A tekton pipeline builder",
-	Long:  `A tekton pipeline builder able to create from templates and a configurator files pipelines ans tasks.`,
+	Use:   "pipeline-generator",
+	Short: "A tekton pipeline generator",
+	Long:  `A tekton pipeline generator able to create from templates and a configurator files pipelines ans tasks.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		// Check if required flags are provided
 		if configurator == "" {

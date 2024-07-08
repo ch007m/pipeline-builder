@@ -1,9 +1,9 @@
-package builder
+package generator
 
 import (
 	"fmt"
 	"github.com/ch007m/pipeline-builder/logging"
-	"github.com/ch007m/pipeline-builder/task"
+	"github.com/ch007m/pipeline-builder/model/task"
 	"gopkg.in/yaml.v3"
 )
 
@@ -32,7 +32,7 @@ func Contribute(path string, output string) error {
 			},
 		},
 		Spec: task.TaskSpec{
-			Description: `This Task will inspect a Buildpacks builder image using the skopeo tool
+			Description: `This Task will inspect a Buildpacks generator image using the skopeo tool
 to find if the image includes the labels: io.buildpacks.extension.layers and io.buildpacks.buildpack.order-extensions.
 If this is the case, then, you can use the "results.extensionLabels" within your PipelineRun or TaskRun to
 trigger the out using either the buildpacks extension Task or the buildpacks task.
@@ -72,7 +72,7 @@ Additionally, the CNB USER ID and CNB GROUP ID of the image will be exported as 
 			},
 			Steps: []task.Step{
 				{
-					Name:  "check-image-builder-extension",
+					Name:  "check-image-generator-extension",
 					Image: "quay.io/ch007m/extended-skopeo",
 					Env: []task.EnvVar{
 						{Name: "PARAM_USER_HOME", Value: "$(params.userHome)"},
