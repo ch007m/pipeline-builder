@@ -34,6 +34,7 @@ func CreatePipeline() pipeline.Pipeline {
 				{Name: "java", Type: "string", Description: "Java build", Default: "false"},
 				{Name: "snyk-secret", Type: "string", Description: "Snyk Token Secret Name", Default: ""},
 				{Name: "image-expires-after", Description: "Image tag expiration time, time values could be something like 1h, 2d, 3w for hours, days, and weeks, respectively.", Default: ""},
+				// Buildpacks parameters
 				{Name: "sourceSubPath", Type: "string", Description: "Subpath of the git cloned project where code should be used", Default: "."},
 				{Name: "cnbBuilderImage", Type: "string", Description: "Buildpacks Builder image to be used to build the runtime", Default: ""},
 				{Name: "cnbLifecycleImage", Type: "string", Description: "TODO", Default: ""},
@@ -111,7 +112,7 @@ func CreatePipeline() pipeline.Pipeline {
 					TaskRef: pipeline.TaskRef{
 						Resolver: "bundles",
 						Params: []pipeline.Param{
-							{Name: "bundle", Value: "quay.io/redhat-appstudio-tekton-catalog/init:0.1"},
+							{Name: "bundle", Value: "quay.io/redhat-appstudio-tekton-catalog/task-init:0.1@sha256:26586a7ef08c3e86dfdaf0a5cc38dd3d70c4c02db1331b469caaed0a0f5b3d86"},
 							{Name: "name", Value: "init"},
 						},
 					},
@@ -132,56 +133,70 @@ func CreatePipeline() pipeline.Pipeline {
 					},
 					Workspaces: []pipeline.WorkspaceBinding{
 						{Name: "output", Workspace: "workspace"},
+						{Name: "basic-auth", Workspace: "git-auth"},
 					},
 				},
 				{
-					Name:     "fetch-sources",
-					RunAfter: []string{"init"},
+					Name:     "buildpacks-extension-check",
+					RunAfter: []string{"clone-repository"},
 					Params: []pipeline.Param{
-						{Name: "url", Value: "$(params.git-url)"},
-						{Name: "revision", Value: "$(params.revision)"},
-						{Name: "subdirectory", Value: "$(params.sourceSubPath)"},
-						{Name: "depth", Value: "0"},
+						{Name: "builderImage", Value: " $(params.cnbBuilderImage)"},
 					},
 					TaskRef: pipeline.TaskRef{
-						Resolver: "bundles",
+						Resolver: "git",
 						Params: []pipeline.Param{
-							{Name: "bundle", Value: "quay.io/redhat-appstudio-tekton-catalog/git-clone:0.1"},
-							{Name: "name", Value: "git-clone"},
-							{Name: "kind", Value: "Task"},
+							{Name: "url", Value: "https://github.com/redhat-buildpacks/catalog.git"},
+							{Name: "revision", Value: "main"},
+							{Name: "pathInRepo", Value: "tekton/task/buildpacks-extension-check/01/buildpacks-extension-check.yaml"},
 						},
 					},
-					Workspaces: []pipeline.WorkspaceBinding{
-						{Name: "output", Workspace: "workspace"},
-					},
 				},
+				//      taskRef:
+				//        resolver: git
+				//        params:
+				//          - name: url
+				//            value: https://github.com/redhat-buildpacks/catalog.git
+				//          - name: revision
+				//            value: main
+				//          - name: pathInRepo
+				//            value: tekton/task/buildpacks-phases/01/buildpacks-phases.yaml
+				//      workspaces:
+				//        - name: source
+				//          workspace: workspace
 				{
 					Name:     "build-container",
-					RunAfter: []string{"fetch-sources"},
+					RunAfter: []string{"clone-repository"},
+					When: []pipeline.When{
+						{Input: "$(tasks.init.results.build)", Operator: "in", Values: []string{"true"}},
+					},
 					Params: []pipeline.Param{
 						{Name: "IMAGE", Value: "$(params.output-image)"},
 						{Name: "DOCKERFILE", Value: "$(params.dockerfile)"},
 						{Name: "CONTEXT", Value: "$(params.path-context)"},
+						{Name: "HERMETIC", Value: "$(params.hemetic)"},
 						{Name: "PREFETCH_INPUT", Value: "$(params.prefetch-input)"},
-						{Name: "BUILDER_IMAGE", Value: "$(params.cnbBuilderImage)"},
-						{Name: "LIFECYCLE_IMAGE", Value: "$(params.cnbLifecycleImage)"},
-						{Name: "RUN_IMAGE", Value: "$(params.cnbRunImage)"},
-						{Name: "PLATFORM_API_VERSION", Value: "0.8"},
-						{Name: "BUILDPACKS", Value: "$(params.cnbBuildImage)"},
-						{Name: "BUILDER_ENV_VARS", Value: "$(params.cnbBuildEnvVars)"},
-						{Name: "EXPERIMENTAL", Value: "$(params.cnbExperimentalMode)"},
-						{Name: "LOG_LEVEL", Value: "$(params.cnbLogLevel)"},
+						{Name: "IMAGE_EXPIRES_AFTER", Value: "$(params.image-expires-after)"},
+						{Name: "COMMIT_SHA", Value: "$(tasks.clone-repository.results.commit)"},
+						// Buildpacks parameters
+						{Name: "APP_IMAGE", Value: "$(params.output-image)"},
+						{Name: "SOURCE_SUBPATH", Value: "$(params.sourceSubPath)"},
+						{Name: "CNB_BUILDER_IMAGE", Value: "$(params.cnbBuilderImage)"},
+						{Name: "CNB_LIFECYCLE_IMAGE", Value: "$(params.cnbLifecycleImage)"},
+						{Name: "CNB_EXPERIMENTAL_MODE", Value: "$(params.cnbExperimentalMode)"},
+						{Name: "CNB_LOG_LEVEL", Value: "value: $(params.cnbLogLevel)"},
+						{Name: "CNB_RUN_IMAGE", Value: "$(params.cnbRunImage) #${CNB_RUN_IMAGE}"},
+						{Name: "CNB_BUILD_IMAGE", Value: "$(params.cnbBuildImage)"},
+						{Name: "CNB_USER_ID", Value: "$(tasks.buildpacks-extension-check.results.uid)"},
+						{Name: "CNB_GROUP_ID", Value: "$(tasks.buildpacks-extension-check.results.gid)"},
+						{Name: "CNB_ENV_VARS", Value: []string{"$(params.cnbBuildEnvVars)"}},
 					},
 					TaskRef: pipeline.TaskRef{
-						Resolver: "bundles",
+						Resolver: "git",
 						Params: []pipeline.Param{
-							{Name: "bundle", Value: "quay.io/redhat-appstudio-tekton-catalog/build:0.1"},
-							{Name: "name", Value: "build"},
-							{Name: "kind", Value: "Task"},
+							{Name: "url", Value: "https://github.com/redhat-buildpacks/catalog.git"},
+							{Name: "revision", Value: "main"},
+							{Name: "pathInRepo", Value: "tekton/task/buildpacks-extension-check/01/buildpacks-extension-check.yaml"},
 						},
-					},
-					Workspaces: []pipeline.WorkspaceBinding{
-						{Name: "source", Workspace: "workspace"},
 					},
 				},
 			},
